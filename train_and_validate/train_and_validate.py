@@ -111,8 +111,8 @@ def test(model, device, test_loader):
 
 def train( model, device, train_loader,test_loader, EPOCH, FACTOR, PATIENCE, MOMENTUM, LEARNING_RATE):
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM, nesterov=True, weight_decay= 0.0004)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=FACTOR, patience=PATIENCE, verbose=True)  
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, nesterov=True, weight_decay= 0.0001)
+    scheduler = optim.lr_scheduler.OneCycleLR(optimizer=optimizer, max_lr=0.008,pct_start =5/24,epochs=24, steps_per_epoch=len(trainloader))
     train_losses = []
     train_acc = []
     test_losses = []
@@ -146,6 +146,7 @@ def train( model, device, train_loader,test_loader, EPOCH, FACTOR, PATIENCE, MOM
             # Backpropagation
             loss.backward()
             optimizer.step()
+            scheduler.step()
             # Update pbar-tqdm
 
             pred = y_pred.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
@@ -156,7 +157,7 @@ def train( model, device, train_loader,test_loader, EPOCH, FACTOR, PATIENCE, MOM
 
         train_losses.append(loss.item())    
         train_acc.append(100*correct/processed)
-        scheduler.step(100*correct/processed)
+        
         img,true_wrong,pred_wrong,tst_acc ,tst_loss = test(model, device, test_loader)
         test_losses.append(tst_loss)
         test_acc.append(tst_acc)
