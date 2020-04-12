@@ -16,7 +16,7 @@ class albumCompose:
             PadIfNeeded(min_height=40,min_width=40),
             RandomCrop(32,32),
             Flip(),
-            VerticalFlip(p=0.5)
+            VerticalFlip(p=0.5),
             Cutout(max_h_size=8,max_w_size=8,num_holes=1),
             Normalize((0.49139968, 0.48215841, 0.44653091), (0.24703223, 0.24348513, 0.26158784))
         })
